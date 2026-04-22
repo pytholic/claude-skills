@@ -1,60 +1,171 @@
 ---
 name: python-dev
-description: Expert Python development workflow for the user's planning-first methodology. Use when architecting Python applications, refactoring code, or implementing features that need careful design. Biases toward simplicity and surgical changes over speculative abstractions. Applies OOP patterns (Factory, Strategy, DI) only when complexity justifies them. Uses Python 3.13+, ruff, pyright, pytest, pyproject.toml.
+description: Expert Python development workflow following SOLID principles, OOP design patterns, and modern best practices. Use when architecting Python applications, refactoring code, implementing complex features, or making design decisions requiring careful planning. Applies Factory Method, Strategy, Dependency Injection patterns. Creates modular architecture with pytest testing. For new project setup, see the python-project-scaffold skill instead.
 ---
 
 # Python Development Workflow
 
-Expert Python development aligned with the user's CLAUDE.md principles: think before coding, simplicity first, surgical changes, goal-driven execution.
+Expert Python development following a planning-first methodology.
 
-## Workflow
+---
 
-1. **Understand** — Clarify requirements, constraints, edge cases. Surface ambiguity; don't pick silently.
-2. **Plan** — State a brief plan with verifiable success criteria for multi-step tasks.
-3. **Implement** — Incremental, testable. Prefer flat, explicit, readable code.
-4. **Verify** — Tests pass, ruff/pyright clean, behavior matches success criteria.
+## Core Principle
 
-## Design Philosophy
+**PLAN BEFORE YOU CODE. DESIGN BEFORE YOU IMPLEMENT.**
 
-**Simplicity first.** The minimum code that solves today's problem. No speculative flexibility, no patterns "in case we need them later."
+Never start writing code without understanding the requirements and selecting an architecture. A 10-minute design session prevents hours of refactoring.
 
-**Patterns are tools, not defaults.** Factory / Strategy / Adapter / Dependency Injection are useful when complexity justifies them — usually when there are real alternate implementations, real testability needs, or real extension points. For one-off code, a plain function is better than a pattern.
+---
 
-**SOLID and DRY are guidance, not law.** Follow SRP and DIP when they reduce complexity. Don't extract an abstraction for a single caller. Three similar lines is better than a premature abstraction.
+## Triage Gate
 
-**Composition over inheritance.** Prefer protocols and duck typing over deep class hierarchies.
+Before starting, classify the work:
 
-## Standards
+- **Small change** (bug fix, single function, config tweak): Skip to Implementation Standards. No formal design needed.
+- **Medium feature** (new module, new endpoint, new service): Follow Phase 1 + 2 lightly, then implement.
+- **Large feature / new subsystem** (multi-module, cross-cutting, architectural impact): Full workflow below.
 
-- **Python 3.13+ type syntax**: `str | None`, `list[int]`, `dict[str, Any]` — never `Optional`, `List`, `Dict`.
-- **Ruff + pyright** configured via `pyproject.toml`. Match the project's existing config.
-- **Functions stay small and focused.** ~30 lines is a useful smell test, not a hard limit.
-- **No `print()`** in library code — use `logging` or `structlog`.
-- **Context managers** for resources (files, connections, locks).
-- **Generators** for large/streaming data; don't materialize lists you'll iterate once.
-- **Explicit over implicit**, flat over nested, early returns over deep pyramids.
-- **Google-style docstrings** on public APIs. Skip docstrings on obvious internal helpers.
+When in doubt, default to the full workflow.
 
-## Testing
+---
 
-- **pytest only** (never `unittest`).
-- `pytest.param(..., id=...)` for parametrized cases — never bare tuples.
-- Test behavior through public interfaces, not implementation details.
-- Dependency injection > mocking. Mock only at system boundaries.
-- See the `write-tests` skill for detailed test-writing guidance.
+## Phase 1: Understand
 
-## Project Setup
+Before any design work, answer these questions:
 
-- `.venv` at project root (use if it exists).
-- `pyproject.toml` for config — ruff rules, pyright strictness, pytest options, dependencies.
-- Module layout: `src/package/` with `tests/` mirroring the structure.
+1. **What problem are we solving?** State the goal in one sentence.
+2. **What are the inputs and outputs?** Data flowing in and out of the system.
+3. **What are the constraints?** Performance, compatibility, external dependencies, existing patterns in the codebase.
+4. **What are the edge cases?** Empty inputs, concurrent access, failure modes, missing data.
+5. **What does "done" look like?** Acceptance criteria — how do we know this works?
 
-## Deliverables
+If any answer is unclear, ask before proceeding.
 
-For non-trivial work, provide:
-1. Brief design rationale — what you chose and why.
-2. Key tradeoffs surfaced (what was rejected and why).
-3. The implementation.
-4. Test strategy (what's covered, what isn't, why).
+---
 
-Skip the ceremony for trivial changes. A one-line fix doesn't need a design doc.
+## Phase 2: Design
+
+### 2a. Architecture Decision
+
+Select the right level of abstraction:
+
+- **Simple function** — No state, no side effects, pure transformation → standalone function
+- **Stateful component** — Manages internal state, lifecycle → class
+- **Pluggable behavior** — Multiple strategies, swappable implementations → Protocol + Strategy
+- **External boundary** — Database, API, file system → Interface + concrete adapter
+- **Orchestration** — Coordinates multiple components → Facade or Service class
+
+### 2b. Pattern Selection
+
+Apply when complexity justifies — never introduce a pattern for a problem that doesn't exist:
+
+| Problem | Pattern | When to use |
+|---------|---------|-------------|
+| Object creation varies by context | Factory Method | 3+ creation paths, or creation logic is complex |
+| Algorithm varies by context | Strategy (via Protocol) | 2+ interchangeable behaviors |
+| External system boundary | Adapter | Wrapping third-party APIs or infrastructure |
+| Complex subsystem access | Facade | Simplifying a multi-step internal workflow |
+| Cross-cutting concerns | Dependency Injection | Testing, swappable implementations |
+
+**Composition over inheritance.** If you reach for a base class, ask whether a Protocol + composition achieves the same with less coupling.
+
+### 2c. Module Layout
+
+Follow a layered structure within the package:
+
+```
+package/
+├── __init__.py          # Public API — re-exports only
+├── core/
+│   ├── interfaces.py    # Protocols and abstract contracts
+│   ├── models.py        # Domain models (dataclasses / Pydantic)
+│   └── exceptions.py    # Domain-specific exceptions
+├── services/            # Business logic and orchestration
+├── infrastructure/      # External adapters (DB, API clients, file I/O)
+├── facade/              # High-level entry points (optional)
+└── config.py            # Configuration loading
+```
+
+Dependencies flow inward: infrastructure → services → core. Core never imports from infrastructure.
+
+---
+
+## Phase 3: Implement
+
+### Implementation Standards
+
+- **Functions under 30 lines.** If longer, decompose.
+- **Type hints everywhere** using Python 3.12+ syntax (`str | None`, not `Optional[str]`).
+- **PEP compliance** — follow project ruff and pyright config in `pyproject.toml`.
+- **Explicit over implicit, flat over nested.**
+- **Generators** for memory efficiency on large data.
+- **Context managers** for any resource with a lifecycle (files, connections, cursors).
+- **No `print()` statements** — use structured logging.
+- **Google-style docstrings** on all public APIs.
+- **Protocols over ABCs** where you don't need shared implementation.
+
+### Error Handling
+
+- Define domain-specific exceptions in `core/exceptions.py`.
+- Catch specific exceptions, never bare `except Exception`.
+- Validate at system boundaries (user input, external API responses, file reads).
+- Use early returns to reduce nesting.
+
+### Dependency Management
+
+- Pin dependencies with version bounds (`>=2.0.0,<3.0.0`).
+- Separate runtime, dev, and docs dependency groups.
+- Use `uv` for environment management.
+
+---
+
+## Phase 4: Verify
+
+### Self-Review Checklist
+
+Before declaring the feature complete:
+
+- [ ] All public interfaces have type hints and docstrings
+- [ ] Functions are under 30 lines
+- [ ] No circular imports between modules
+- [ ] Dependencies flow inward (infrastructure → services → core)
+- [ ] Error handling is specific, not broad
+- [ ] New behavior has corresponding tests
+- [ ] `ruff check` and `pyright` pass clean
+- [ ] Design rationale is documented (in PR description or ADR)
+
+### Testing
+
+Apply the project's testing skill if one exists. Otherwise:
+
+- pytest (never unittest)
+- `pytest.param()` with descriptive `id` for parametrized tests
+- AAA pattern (Arrange-Act-Assert)
+- Test edge cases and error paths
+- Mock only at boundaries; prefer dependency injection
+- Profile before optimizing
+
+---
+
+## Deliverables Format
+
+Always provide:
+
+1. **Design rationale** — Why this approach, what alternatives were considered
+2. **Architecture decisions** — Patterns chosen and tradeoffs made
+3. **Implementation** — Clean, modular code with clear separation of concerns
+4. **Future considerations** — Extension points and known limitations
+
+---
+
+## Process Violations — Red Flags
+
+Stop and correct if you catch yourself doing any of the following:
+
+- Writing code before understanding requirements
+- Introducing a design pattern without a concrete problem it solves
+- Creating an inheritance hierarchy when composition would work
+- Skipping type hints on public interfaces
+- Catching broad exceptions to silence errors
+- Adding speculative abstractions ("we might need this later")
+- Writing a 100-line function instead of decomposing

@@ -1,16 +1,16 @@
 ---
-name: code-review
-description: Reviews code changes for quality, correctness, and adherence to project conventions before commits or PRs. Checks for SOLID violations, DRY/YAGNI issues, missing tests, type safety, security concerns, and style compliance. Use when reviewing diffs, preparing PRs, after implementing features, or when the user asks to review code.
+name: python-code-review
+description: Reviews Python code changes for quality, correctness, and adherence to project conventions before commits or PRs. Checks for SOLID violations, DRY/YAGNI issues, missing tests, type safety, security concerns, and style compliance. Use when reviewing diffs, preparing PRs, after implementing features, or when the user asks to review code. Python-specific — covers ruff, pyright, pytest, and modern Python 3.12+ idioms.
 ---
 
-# Code Review
+# Python Code Review
 
-Thorough code review of recent changes. Focuses on what matters: correctness, design, and maintainability.
+Thorough code review of recent Python changes. Focuses on what matters: correctness, design, and maintainability.
 
 ## Step 1: Gather Context
 
 1. Run `git diff` to see unstaged changes (or `git diff --cached` for staged, or `git diff main...HEAD` for full branch diff)
-2. Read the project's `CLAUDE.md` and `pyproject.toml` for conventions (linter rules, type checker config, test config)
+2. Read the project's `CLAUDE.md` and `pyproject.toml` for conventions (ruff rules, pyright config, test config)
 3. Read each changed file in full to understand surrounding context
 
 ## Step 2: Review (in priority order)
@@ -44,14 +44,15 @@ Thorough code review of recent changes. Focuses on what matters: correctness, de
 
 **KISS** — Flag unnecessary complexity. If 50 lines can replace 200, say so.
 
-### 2d. Python-Specific
+### 2d. Python Quality
 
-- Type hints on all public interfaces (Python 3.13+ syntax: `str | None`, not `Optional[str]`)
+- Type hints on all public interfaces (Python 3.12+ syntax: `str | None`, not `Optional[str]`)
 - Functions under 30 lines; if longer, suggest decomposition
 - Composition over inheritance
 - Context managers for resources, generators for memory efficiency
 - No `print()` statements (use logging)
 - Google-style docstrings on public APIs
+- Protocol pattern over ABCs where appropriate
 
 ### 2e. Style & Linting
 
@@ -59,6 +60,7 @@ Thorough code review of recent changes. Focuses on what matters: correctness, de
 - Line length limit (typically 100 chars)
 - Import ordering (isort via ruff `I` rule)
 - Consistent naming conventions
+- No dead code introduced (unused imports, variables, functions)
 
 ### 2f. Test Quality
 
@@ -99,6 +101,5 @@ Output a structured review using this format:
 - Be specific: reference exact file and line, show the problematic code, show the fix.
 - Do not nitpick formatting that ruff would auto-fix.
 - Do not suggest adding comments/docstrings to code you didn't write.
-- Do not recommend speculative abstractions or "for future flexibility" refactors — respect YAGNI.
 - If no issues found, say so. Don't invent problems.
-- For the detailed checklist, see [checklist.md](checklist.md).
+- For the checklist, see [checklist.md](checklist.md).

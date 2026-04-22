@@ -26,7 +26,7 @@ Use this checklist for systematic reviews. Not every item applies to every chang
 - [ ] Simplest solution that works (KISS)
 
 ## Python Quality
-- [ ] Type hints on all public signatures (3.13+ syntax)
+- [ ] Type hints on all public signatures (3.12+ syntax)
 - [ ] Functions under 30 lines
 - [ ] No `print()` — use structured logging
 - [ ] Google-style docstrings on public APIs
