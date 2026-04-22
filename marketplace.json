@@ -49,5 +49,22 @@
       "description": "Write focused pytest tests covering critical paths, edge cases, and error handling. Avoids redundant tests that bloat the codebase.",
       "path": "write-tests"
     }
+  ],
+  "bundles": [
+    {
+      "name": "all",
+      "description": "Install all skills in this library.",
+      "skills": [
+        "code-review",
+        "codebase-research",
+        "explain-code",
+        "llm-dev",
+        "playwright-cli",
+        "python-dev",
+        "systematic-debugging",
+        "task-handover",
+        "write-tests"
+      ]
+    }
   ]
 }

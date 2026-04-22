@@ -2,6 +2,12 @@
 
 Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, LLM engineering, and more.
 
+## Install all skills at once
+
+```
+/plugin install all@pytholic/claude-skills
+```
+
 ## Install a single skill
 
 ```
@@ -9,20 +15,6 @@ Personal Claude Code skill library — specialized workflows for Python developm
 ```
 
 Replace `skill-name` with any skill listed below.
-
-## Install all skills
-
-Clone the repo directly into your `~/.claude/skills/` directory:
-
-```bash
-git clone https://github.com/pytholic/claude-skills.git ~/.claude/skills
-```
-
-Or, if `~/.claude` is already a git repo, add it as a submodule:
-
-```bash
-git submodule add https://github.com/pytholic/claude-skills.git ~/.claude/skills
-```
 
 ## Available skills
 
