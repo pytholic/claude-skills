@@ -2,16 +2,24 @@
 
 Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, LLM engineering, and more.
 
-## Install all skills at once
+## Install
+
+First, add the marketplace (one-time setup):
 
 ```
-/plugin install all@pytholic/claude-skills
+/plugin marketplace add pytholic/claude-skills
 ```
 
-## Install a single skill
+Then install all skills at once:
 
 ```
-/plugin install python-dev@pytholic/claude-skills
+/plugin install all@pytholic-skills
+```
+
+Or install a single skill:
+
+```
+/plugin install python-dev@pytholic-skills
 ```
 
 Replace `python-dev` with any skill name from the table below.
