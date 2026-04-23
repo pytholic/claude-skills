@@ -37,6 +37,7 @@ Replace `python-dev` with any skill name from the table below.
 | `systematic-debugging` | Four-phase debugging: reproduce → isolate → root cause → fix |
 | `task-handover` | Structured HANDOVER.md for cold-start session resumption |
 | `write-tests` | Focused pytest coverage for critical paths, edge cases, and error handling |
+| `excalidraw-diagram` | Generate Excalidraw diagrams from text descriptions |
 
 ## Usage
 
