@@ -1,6 +1,6 @@
 ---
 name: python-project-scaffold
-description: Scaffold a new Python project with production-ready tooling and structure. Use when the user says "new project", "set up a project", "initialize a Python project", "create a repo", "project template", or asks for boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, working memory (.ai/), and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
+description: Scaffold a new Python project with production-ready tooling and structure. Use when the user says "new project", "set up a project", "initialize a Python project", "create a repo", "project template", or asks for boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, HAC (.hac/), and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
 ---
 
 # Python Project Scaffold
@@ -17,17 +17,18 @@ Do not improvise project setup. Follow this skill to produce a consistent, opini
 
 ---
 
-## Working Memory (.ai/ directory)
+## HAC — Human-Agent Context (.hac/ directory)
 
-The `.ai/` directory is a shared working memory layer between the human and the agent. It solves the "where were we?" problem — when you return to a project after days or weeks, you read `.ai/status.md` instead of reconstructing state from memory or git history.
+The `.hac/` directory is the shared context layer between the human and the agent. HAC stands for **Human-Agent Context**. It solves two problems: "where were we?" when resuming after a break, and "why did we do it that way?" when revisiting past choices.
 
-Three files, three concepts:
+Four files, four concepts:
 
-- **`status.md`** — The dashboard. What's active, blocked, and done. First thing read at session start. Includes a one-line project description so the agent has immediate context without opening other files.
-- **`decisions.md`** — Lightweight architecture decision records. Why we chose X over Y, and crucially, what we rejected and why. Prevents re-litigating past choices. Append-only — never edit or remove past entries.
-- **`tasks/<name>.md`** — One scratchpad per non-trivial task. Contains context, phased plan, notes/findings discovered during work, and open questions/risks.
+- **`README.md`** — The front door. Explains what `.hac/` is to any human who encounters the folder. Contains the master index table — a single-glance lookup of every task, every decision, and their current state.
+- **`status.md`** — The dashboard. Overview table of active, blocked, and completed work with status labels, priority, and ownership. First thing read at session start.
+- **`decisions.md`** — Lightweight architecture decision records with a quick reference table at the top. Why we chose X over Y, and what we rejected. Append-only.
+- **`tasks/<name>.md`** — One scratchpad per non-trivial task. Metadata table, context, phased plan, notes/findings, open questions, and a session log.
 
-The `.ai/` directory is always tracked in git — it contains project knowledge that should persist across contributors and sessions. Task files are created on-demand during development; only `status.md`, `decisions.md`, and an empty `tasks/` folder are generated at scaffold time.
+The `.hac/` directory is always tracked in git — it contains project knowledge that should persist across contributors and sessions. Task files are created on-demand during development; only `README.md`, `status.md`, `decisions.md`, and an empty `tasks/` folder are generated at scaffold time.
 
 For the full protocol on how the agent reads, updates, and maintains these files during sessions, see Section 7 of the global `~/.claude/CLAUDE.md`.
 
@@ -63,10 +64,11 @@ Before generating any files, confirm:
 
 ```
 project-name/
-├── .ai/                         # Working memory (agent + human shared state)
-│   ├── status.md                # Dashboard: active/blocked/done overview
-│   ├── decisions.md             # Lightweight ADRs: why we chose X over Y
-│   └── tasks/                   # One file per non-trivial task
+├── .hac/                        # Human-Agent Context (shared working memory)
+│   ├── README.md                # What is .hac + master index table
+│   ├── status.md                # Dashboard: overview table with status/priority/owner
+│   ├── decisions.md             # Lightweight ADRs with quick reference table
+│   └── tasks/                   # One scratchpad per non-trivial task
 │       └── .gitkeep
 ├── .github/
 │   ├── workflows/               # CI pipelines
@@ -111,35 +113,101 @@ For applications, also generate `main.py` at the root.
 
 ## Phase 3: File Templates
 
-### .ai/status.md
+### .hac/README.md
 
 ```markdown
-# Project Status
+# .hac — Human-Agent Context
 
-> PROJECT_NAME — PROJECT_DESCRIPTION
+This directory is the shared context layer between humans and AI agents
+working on this project. **HAC** stands for **Human-Agent Context**.
 
-## Active
+It exists so that when anyone — human or agent — picks up this project
+after a break, they can understand the current state in under 30 seconds
+without reading code, scrolling through Slack, or asking "where were we?"
 
-_No active tasks yet._
+## How It Works
 
-## Blocked
+| File | Purpose | Who updates it |
+|------|---------|----------------|
+| `status.md` | Dashboard — what's active, blocked, done | Agent (after each work block) |
+| `decisions.md` | Why we chose X over Y | Agent (when decisions are made) |
+| `tasks/<name>.md` | Scratchpad per task — plan, findings, log | Agent (during execution) |
+
+## Master Index
+
+A single-glance lookup across everything tracked in this project.
+
+### Tasks
+
+| Task | Status | Priority | Owner | File | Updated |
+|------|--------|----------|-------|------|---------|
+| _No tasks yet_ | | | | | |
+
+### Decisions
+
+| Date | Decision | Choice | Impact |
+|------|----------|--------|--------|
+| _No decisions yet_ | | | |
+
+## Rules
+
+- This directory is tracked in git. It is project knowledge.
+- `decisions.md` is append-only. Never edit or remove past entries.
+- Task files are created on-demand, not in advance.
+- Don't use `.hac/` for trivial one-off fixes.
+```
+
+### .hac/status.md
+
+```markdown
+# Status — PROJECT_NAME
+
+> PROJECT_DESCRIPTION
+
+## Overview
+
+| Task | Status | Priority | Owner | Updated |
+|------|--------|----------|-------|---------|
+| _No active tasks_ | | | | |
+
+### Status Labels
+
+- 🟢 **Active** — Currently being worked on
+- 🟡 **Review** — Work done, needs human review
+- 🔴 **Blocked** — Waiting on external dependency or decision
+- ⚪ **Done** — Completed and verified
+
+### Priority Levels
+
+- **P0** — Must be done now, blocks other work
+- **P1** — Important, do next
+- **P2** — Nice to have, do when bandwidth allows
+
+## Blocked Items
 
 _Nothing blocked._
 
-## Completed
+## Notes
 
-_No completed tasks yet._
+_Anything that doesn't fit in a task file but is useful to know right now._
 ```
 
-### .ai/decisions.md
+### .hac/decisions.md
 
 ```markdown
-# Architectural Decisions
+# Decisions — PROJECT_NAME
 
-Append new decisions at the top. Each entry records context, the choice made,
-the reasoning, and what was explicitly rejected.
+## Quick Reference
 
-<!-- Template:
+| Date | Decision | Choice | Impact |
+|------|----------|--------|--------|
+| _No decisions yet_ | | | |
+
+---
+
+<!-- Append new decisions below this line, newest first.
+
+Format:
 ## YYYY-MM-DD: Decision Title
 - **Context:** What situation or constraint prompted this decision?
 - **Choice:** What did we decide?
@@ -148,17 +216,22 @@ the reasoning, and what was explicitly rejected.
 -->
 ```
 
-### .ai/tasks/ (template reference)
+### .hac/tasks/ (template reference)
 
 Individual task files are created on-demand, not at scaffold time. The standard
-template for a task file (`.ai/tasks/<task-name>.md`):
+template for a task file (`.hac/tasks/<task-name>.md`):
 
 ```markdown
 # Task: [Task Name]
 
-**Status:** Not Started | In Progress | Blocked | Done (YYYY-MM-DD)
-**Created:** YYYY-MM-DD
-**Updated:** YYYY-MM-DD
+| Field | Value |
+|-------|-------|
+| **Status** | 🟢 Active |
+| **Priority** | P1 |
+| **Owner** | @name |
+| **Created** | YYYY-MM-DD |
+| **Updated** | YYYY-MM-DD |
+| **Scope** | ~N sessions |
 
 ## Context
 
@@ -177,6 +250,10 @@ Discoveries made during execution. Facts, not opinions.
 ## Open Questions / Risks
 
 Unknowns that need resolution before or during implementation.
+
+## Session Log
+
+- **YYYY-MM-DD:** What happened this session. What's next.
 ```
 
 ### CLAUDE.md
@@ -469,10 +546,10 @@ rules:
 # Copy to .env and fill in values. DO NOT commit .env to version control.
 ```
 
-### .gitignore (append these lines for .ai/)
+### .gitignore (note on .hac/)
 
-Ensure `.ai/` is tracked in git (it should be). Task files contain project
-knowledge that should persist across contributors. Do NOT gitignore `.ai/`.
+Ensure `.hac/` is tracked in git (it should be). Task files contain project
+knowledge that should persist across contributors. Do NOT gitignore `.hac/`.
 
 ---
 
@@ -506,7 +583,7 @@ Report any failures and fix before declaring scaffold complete.
 - **Docs are optional**: Only generate `docs/` and `mkdocs.yml` if the user requests documentation.
 - **CI is optional**: Only generate `.github/workflows/` if the user requests CI setup.
 - **e2e tests are optional**: Only create `tests/e2e/` if the project has external dependencies worth testing end-to-end.
-- **.ai/ is always created**: The working memory directory is part of every non-trivial project. Task files are created on-demand during development, not at scaffold time.
+- **.hac/ is always created**: The Human-Agent Context directory is part of every non-trivial project. Task files are created on-demand during development, not at scaffold time.
 
 ---
 
@@ -522,4 +599,4 @@ Stop and correct if you catch yourself doing any of the following:
 - Using `pip` or `poetry` instead of `uv`
 - Putting test configuration in a separate `pytest.ini` instead of `pyproject.toml`
 - Generating a flat `tests/` directory without `unit/` and `integration/` separation
-- Skipping the `.ai/` working memory directory
+- Skipping the `.hac/` Human-Agent Context directory
