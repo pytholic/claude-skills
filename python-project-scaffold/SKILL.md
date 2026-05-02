@@ -1,6 +1,6 @@
 ---
 name: python-project-scaffold
-description: Scaffold a new Python project with production-ready tooling and structure. Use when the user says "new project", "set up a project", "initialize a Python project", "create a repo", "project template", or asks for boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
+description: Scaffold a new Python project with production-ready tooling and structure. Use when the user says "new project", "set up a project", "initialize a Python project", "create a repo", "project template", or asks for boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, working memory (.ai/), and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
 ---
 
 # Python Project Scaffold
@@ -14,6 +14,22 @@ Generate a complete, production-ready Python project structure in one pass.
 **EVERY NEW PROJECT STARTS WITH THE SAME SOLID FOUNDATION.**
 
 Do not improvise project setup. Follow this skill to produce a consistent, opinionated scaffold that matches the team's established conventions.
+
+---
+
+## Working Memory (.ai/ directory)
+
+The `.ai/` directory is a shared working memory layer between the human and the agent. It solves the "where were we?" problem — when you return to a project after days or weeks, you read `.ai/status.md` instead of reconstructing state from memory or git history.
+
+Three files, three concepts:
+
+- **`status.md`** — The dashboard. What's active, blocked, and done. First thing read at session start. Includes a one-line project description so the agent has immediate context without opening other files.
+- **`decisions.md`** — Lightweight architecture decision records. Why we chose X over Y, and crucially, what we rejected and why. Prevents re-litigating past choices. Append-only — never edit or remove past entries.
+- **`tasks/<name>.md`** — One scratchpad per non-trivial task. Contains context, phased plan, notes/findings discovered during work, and open questions/risks.
+
+The `.ai/` directory is always tracked in git — it contains project knowledge that should persist across contributors and sessions. Task files are created on-demand during development; only `status.md`, `decisions.md`, and an empty `tasks/` folder are generated at scaffold time.
+
+For the full protocol on how the agent reads, updates, and maintains these files during sessions, see Section 7 of the global `~/.claude/CLAUDE.md`.
 
 ---
 
@@ -34,7 +50,7 @@ Ask which type if unclear. The scaffold below covers library and application.
 Before generating any files, confirm:
 
 1. **Project name** — kebab-case for the repo, snake_case for the Python package
-2. **Python version** — Default to 3.12+ unless specified
+2. **Python version** — Default to 3.13+ unless specified
 3. **Project type** — Library or application (see triage gate)
 4. **Key dependencies** — Any known runtime dependencies
 5. **Extras** — Docs (mkdocs), Docker, CI (GitHub Actions), or none
@@ -47,30 +63,35 @@ Before generating any files, confirm:
 
 ```
 project-name/
+├── .ai/                         # Working memory (agent + human shared state)
+│   ├── status.md                # Dashboard: active/blocked/done overview
+│   ├── decisions.md             # Lightweight ADRs: why we chose X over Y
+│   └── tasks/                   # One file per non-trivial task
+│       └── .gitkeep
 ├── .github/
-│   ├── workflows/           # CI pipelines
+│   ├── workflows/               # CI pipelines
 │   ├── pull_request_template.md
 │   └── ISSUE_TEMPLATE/
-├── docs/                    # mkdocs source (if docs enabled)
+├── docs/                        # mkdocs source (if docs enabled)
 ├── package_name/
 │   ├── __init__.py
 │   ├── core/
 │   │   ├── __init__.py
-│   │   ├── interfaces.py    # Protocols and contracts
-│   │   ├── models.py        # Domain models
-│   │   └── exceptions.py    # Domain exceptions
-│   ├── services/            # Business logic
+│   │   ├── interfaces.py        # Protocols and contracts
+│   │   ├── models.py            # Domain models
+│   │   └── exceptions.py        # Domain exceptions
+│   ├── services/                # Business logic
 │   │   └── __init__.py
-│   ├── infrastructure/      # External adapters
+│   ├── infrastructure/          # External adapters
 │   │   └── __init__.py
-│   └── config.py            # Configuration loading
+│   └── config.py                # Configuration loading
 ├── tests/
 │   ├── conftest.py
 │   ├── unit/
 │   │   └── __init__.py
 │   ├── integration/
 │   │   └── __init__.py
-│   └── e2e/                 # Optional
+│   └── e2e/                     # Optional
 │       └── __init__.py
 ├── .env.sample
 ├── .gitignore
@@ -90,6 +111,116 @@ For applications, also generate `main.py` at the root.
 
 ## Phase 3: File Templates
 
+### .ai/status.md
+
+```markdown
+# Project Status
+
+> PROJECT_NAME — PROJECT_DESCRIPTION
+
+## Active
+
+_No active tasks yet._
+
+## Blocked
+
+_Nothing blocked._
+
+## Completed
+
+_No completed tasks yet._
+```
+
+### .ai/decisions.md
+
+```markdown
+# Architectural Decisions
+
+Append new decisions at the top. Each entry records context, the choice made,
+the reasoning, and what was explicitly rejected.
+
+<!-- Template:
+## YYYY-MM-DD: Decision Title
+- **Context:** What situation or constraint prompted this decision?
+- **Choice:** What did we decide?
+- **Why:** Why this option over others?
+- **Rejected:** What alternatives were considered and why not?
+-->
+```
+
+### .ai/tasks/ (template reference)
+
+Individual task files are created on-demand, not at scaffold time. The standard
+template for a task file (`.ai/tasks/<task-name>.md`):
+
+```markdown
+# Task: [Task Name]
+
+**Status:** Not Started | In Progress | Blocked | Done (YYYY-MM-DD)
+**Created:** YYYY-MM-DD
+**Updated:** YYYY-MM-DD
+
+## Context
+
+What are we trying to achieve and why?
+
+## Plan
+
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
+
+## Notes / Findings
+
+Discoveries made during execution. Facts, not opinions.
+
+## Open Questions / Risks
+
+Unknowns that need resolution before or during implementation.
+```
+
+### CLAUDE.md
+
+```markdown
+# CLAUDE.md
+
+This file provides guidance to Claude Code when working with this repository.
+
+## What This Is
+
+PROJECT_NAME — PROJECT_DESCRIPTION
+
+## Commands
+
+```bash
+# Setup
+make setup                          # Create .venv and install all deps
+
+# Testing
+make test                           # Run all tests
+make test-unit                      # Unit tests only
+make test-cov                       # Tests with coverage report
+uv run pytest tests/unit/test_x.py  # Single file
+uv run pytest -k "test_name"        # By name pattern
+
+# Code quality
+make lint                           # Check with ruff
+make format                         # Auto-format with ruff
+```
+
+## Architecture
+
+_Describe the high-level architecture here once it stabilizes._
+
+## Conventions
+
+- Python 3.13+, type hints everywhere (pyright strict)
+- Google-style docstrings
+- ruff for linting + formatting (line-length 100)
+- uv for package management
+- Tests: pytest with unit/integration separation
+```
+
 ### pyproject.toml
 
 ```toml
@@ -100,23 +231,23 @@ description = "PROJECT_DESCRIPTION"
 authors = [
     {name = "AUTHOR", email = "EMAIL"},
 ]
-requires-python = ">=3.12.0"
+requires-python = ">=3.13.0"
 readme = "README.md"
 license = {text = "MIT"}
 dependencies = []
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.0,<10.0.0",
-    "pre-commit>=4.0.0,<5.0.0",
-    "pytest-cov>=5.0.0,<6.0.0",
-    "pytest-mock>=3.14.0,<4.0.0",
-    "ruff>=0.11.0,<1.0.0",
+    "pytest",
+    "pre-commit",
+    "pytest-cov",
+    "pytest-mock",
+    "ruff",
 ]
 docs = [
-    "mkdocs>=1.6.0,<2.0.0",
-    "mkdocs-material>=9.5.0,<10.0.0",
-    "mkdocstrings[python]>=1.0.0,<2.0.0",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
 ]
 
 [build-system]
@@ -137,7 +268,7 @@ package = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py313"
 exclude = ["__pycache__"]
 
 [tool.ruff.lint]
@@ -190,7 +321,7 @@ omit = [
 
 [tool.pyright]
 include = ["PACKAGE_NAME"]
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "strict"
 reportMissingTypeArgument = "warning"
 reportUnnecessaryCast = "warning"
@@ -329,7 +460,7 @@ rules:
 ### .python-version
 
 ```
-3.12
+3.13
 ```
 
 ### .env.sample
@@ -337,6 +468,11 @@ rules:
 ```bash
 # Copy to .env and fill in values. DO NOT commit .env to version control.
 ```
+
+### .gitignore (append these lines for .ai/)
+
+Ensure `.ai/` is tracked in git (it should be). Task files contain project
+knowledge that should persist across contributors. Do NOT gitignore `.ai/`.
 
 ---
 
@@ -370,6 +506,7 @@ Report any failures and fix before declaring scaffold complete.
 - **Docs are optional**: Only generate `docs/` and `mkdocs.yml` if the user requests documentation.
 - **CI is optional**: Only generate `.github/workflows/` if the user requests CI setup.
 - **e2e tests are optional**: Only create `tests/e2e/` if the project has external dependencies worth testing end-to-end.
+- **.ai/ is always created**: The working memory directory is part of every non-trivial project. Task files are created on-demand during development, not at scaffold time.
 
 ---
 
@@ -385,3 +522,4 @@ Stop and correct if you catch yourself doing any of the following:
 - Using `pip` or `poetry` instead of `uv`
 - Putting test configuration in a separate `pytest.ini` instead of `pyproject.toml`
 - Generating a flat `tests/` directory without `unit/` and `integration/` separation
+- Skipping the `.ai/` working memory directory
