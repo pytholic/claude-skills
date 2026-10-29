@@ -1,6 +1,6 @@
 # claude-skills
 
-Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, LLM engineering, and more.
+Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, planning, and more.
 
 ## Install
 
@@ -37,84 +37,47 @@ Replace `python-dev` with any skill name from the table below.
 
 | Skill | Description |
 |---|---|
-| `python-code-review` | Structured review for quality, correctness, SOLID/DRY/YAGNI, type safety, and security |
+| `python-code-review` | Review of Python changes for correctness, security, simplicity, and my conventions, with a verdict |
 | `codebase-research` | Navigate and map codebases — find symbols, trace dependencies, answer architecture questions |
 | `explain-code` | Step-by-step walkthroughs with analogies and diagrams, depth matched to the question |
-| `llm-dev` | LLM architectures, RAG, fine-tuning, agentic workflows, evals, and production deployment |
+| `notion-cli` | Notion pages and databases via the `ntn` CLI or the Notion MCP, whichever is cheaper for the job |
 | `playwright-cli` | Browser automation and Playwright test workflows |
 | `python-dev` | Planning-first Python development with Python 3.13+, ruff, pyright, pytest, pyproject.toml |
 | `systematic-debugging` | Four-phase debugging: reproduce → isolate → root cause → fix |
 | `task-handover` | Structured HANDOVER.md for cold-start session resumption |
 | `write-tests` | Focused pytest coverage for critical paths, edge cases, and error handling |
-| `excalidraw-diagram` | Generate Excalidraw diagrams from text descriptions |
 | `hac-init` | Initialize a Human-Agent Context (HAC) directory with templates and bootstrapping process |
 | `python-project-scaffold` | Scaffold a new Python project with production-ready tooling and structure |
 | `help` | User-facing cheat sheet of all personal skills — invoke with `/help` |
-| `goal-workflow` | Implement a spec fully, verify each requirement with parallel agents, and produce a report |
+| `goal-workflow` | Implement a spec fully, check each requirement off, and end with a requirement-by-requirement report |
 | `interview-me` | One-question-at-a-time intent extraction for underspecified asks, until ~95% confidence |
 | `pr-description` | Generate a minimal, clear PR description from the branch diff and the repo's PR template |
 | `task-scope-and-spec` | Scope a loose engineering task into a tight, testable spec list. |
 | `planning-and-task-decomposition` | Decompose a scoped goal into an ordered, verifiable implementation plan with checkpoints |
 | `guided-implementation` | Guide you through writing the code yourself, one piece per turn — human-driven counterpart to `goal-workflow` |
 
-## Shared rules
+## Minimality ladder (lives in CLAUDE.md)
 
-Some rules are inlined into several skills so each stays self-contained. **`shared/`
-holds the canonical copy.** When you change one there, propagate to every listed location
-in the same commit.
-
-### Minimality ladder
-
-Canonical text: [`shared/minimality-ladder.md`](shared/minimality-ladder.md). Adapted from
+The minimality ladder is the single test for "is this code warranted?". Its one copy is
+[`shared/minimality-ladder.md`](shared/minimality-ladder.md), adapted from
 [ponytail](https://github.com/DietrichGebert/ponytail) (MIT).
 
-Edit that file, then run the sync script to propagate:
+The skills don't carry the ladder. They point to it, and `~/.claude/CLAUDE.md` §2 imports
+it with `@~/.claude/skills/shared/minimality-ladder.md`, so it loads in every session.
+Edit `shared/minimality-ladder.md` only; nothing needs syncing.
 
-```bash
-python3 scripts/sync_shared_rules.py --check   # report drift, exit 1 if any
-python3 scripts/sync_shared_rules.py --fix     # rewrite copies from shared/
-```
+Skills that use it: `python-dev` (Phase 2a), `python-code-review` (Simplicity), and
+`guided-implementation` (turn contract).
 
-Copies are delimited by `<!-- BEGIN shared: minimality-ladder -->` /
-`<!-- END shared: minimality-ladder -->`. Only the text between the markers is replaced —
-the framing around each copy differs per skill on purpose and is left alone.
-
-Skills carry inlined copies rather than importing, so each stays self-contained when
-installed from the marketplace — a consumer gets the rule without needing this repo or a
-global CLAUDE.md. CLAUDE.md imports instead, because it lives in a different repo.
-
-| Location | How it's carried |
-|---|---|
-| `~/.claude/CLAUDE.md` — §2 | `@` import — **not a copy, cannot drift** |
-| `python-dev/SKILL.md` — Phase 2a | inlined copy |
-| `python-code-review/SKILL.md` — 2c | inlined copy |
-| `guided-implementation/SKILL.md` — turn contract | inlined copy |
-
-### Enforcing sync
-
-A pre-commit hook blocks a commit while copies have drifted. It isn't version-controlled,
-so set it up once per clone:
-
-```bash
-cat > .git/hooks/pre-commit <<'EOF'
-#!/bin/sh
-python3 "$(git rev-parse --show-toplevel)/scripts/sync_shared_rules.py" --check || {
-    echo "shared rules drifted — run: python3 scripts/sync_shared_rules.py --fix"
-    exit 1
-}
-EOF
-chmod +x .git/hooks/pre-commit
-```
-
-Adding a second shared rule needs no code change — create `shared/<name>.md` with matching
-BEGIN/END markers and the script picks it up.
+**Installing these skills without my `~/.claude` setup?** Those three skills expect the
+ladder in your `CLAUDE.md`. Copy `shared/minimality-ladder.md` into your own `CLAUDE.md`,
+or import it with an `@path` line pointing at this file.
 
 ## Repo layout
 
 ```
 <skill-name>/SKILL.md   one directory per skill
-shared/                 canonical text for rules inlined into several skills
-scripts/                authoring-time tooling (not shipped behaviour)
+shared/                 the minimality ladder, imported by ~/.claude/CLAUDE.md
 ```
 
 ## Usage
@@ -124,7 +87,7 @@ Once installed, invoke a skill in Claude Code:
 ```
 /python-dev
 /systematic-debugging
-/code-review
+/python-code-review
 ```
 
 Each skill's `SKILL.md` contains the full workflow and instructions Claude follows.

@@ -5,54 +5,98 @@
     "email": "rajahaseeb147@gmail.com"
   },
   "metadata": {
-    "description": "Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, LLM engineering, and more.",
-    "version": "1.0.0"
+    "description": "Personal Claude Code skill library — specialized workflows for Python development, debugging, code review, planning, and more. python-dev, python-code-review, and guided-implementation expect the minimality ladder (shared/minimality-ladder.md) in your CLAUDE.md.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "all",
-      "description": "All skills bundled together — code review, codebase research, code explanation, LLM dev, Playwright, Python dev, debugging, task handover, and test writing.",
+      "description": "All skills bundled together.",
       "source": "./",
       "strict": false,
       "skills": [
-        "./code-review",
         "./codebase-research",
         "./explain-code",
-        "./llm-dev",
+        "./goal-workflow",
+        "./guided-implementation",
+        "./hac-init",
+        "./help",
+        "./interview-me",
+        "./notion-cli",
+        "./planning-and-task-decomposition",
         "./playwright-cli",
+        "./pr-description",
+        "./python-code-review",
         "./python-dev",
+        "./python-project-scaffold",
         "./systematic-debugging",
         "./task-handover",
+        "./task-scope-and-spec",
         "./write-tests"
       ]
     },
     {
-      "name": "code-review",
-      "description": "Reviews code changes for quality, correctness, and adherence to project conventions before commits or PRs.",
-      "source": "./",
-      "strict": false,
-      "skills": ["./code-review"]
-    },
-    {
       "name": "codebase-research",
-      "description": "Navigate, search, and map codebases efficiently to answer structural and locational questions.",
+      "description": "Navigate and map codebases with ranked, annotated answers instead of raw search output.",
       "source": "./",
       "strict": false,
       "skills": ["./codebase-research"]
     },
     {
       "name": "explain-code",
-      "description": "Explains code with analogies, diagrams, and step-by-step walkthroughs.",
+      "description": "Explain how and why code works, with an analogy, a diagram, and a walkthrough.",
       "source": "./",
       "strict": false,
       "skills": ["./explain-code"]
     },
     {
-      "name": "llm-dev",
-      "description": "Expert guidance for LLM development — architectures, training, inference, RAG systems, agentic workflows, evals, and production applications.",
+      "name": "goal-workflow",
+      "description": "Implement a spec fully, check each requirement off, and end with a requirement-by-requirement report.",
       "source": "./",
       "strict": false,
-      "skills": ["./llm-dev"]
+      "skills": ["./goal-workflow"]
+    },
+    {
+      "name": "guided-implementation",
+      "description": "Guide you through writing the code yourself, one piece per turn.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./guided-implementation"]
+    },
+    {
+      "name": "hac-init",
+      "description": "Bootstrap a .hac/ (Human-Agent Context) directory for multi-session work.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./hac-init"]
+    },
+    {
+      "name": "help",
+      "description": "Cheat sheet of the personal skills in this library.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./help"]
+    },
+    {
+      "name": "interview-me",
+      "description": "One-question-at-a-time intent extraction for underspecified asks.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./interview-me"]
+    },
+    {
+      "name": "notion-cli",
+      "description": "Notion pages and databases via the ntn CLI or the Notion MCP, whichever is cheaper for the job.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./notion-cli"]
+    },
+    {
+      "name": "planning-and-task-decomposition",
+      "description": "Turn clear requirements into an ordered, verifiable implementation plan.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./planning-and-task-decomposition"]
     },
     {
       "name": "playwright-cli",
@@ -62,29 +106,57 @@
       "skills": ["./playwright-cli"]
     },
     {
+      "name": "pr-description",
+      "description": "Generate a minimal, clear PR description from the branch diff and the repo's PR template.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./pr-description"]
+    },
+    {
+      "name": "python-code-review",
+      "description": "Review Python changes for correctness, security, simplicity, and conventions, with a verdict.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./python-code-review"]
+    },
+    {
       "name": "python-dev",
-      "description": "Expert Python development workflow biased toward simplicity and surgical changes. Uses Python 3.13+, ruff, pyright, pytest, pyproject.toml.",
+      "description": "Planning-first Python development with Python 3.13+, ruff, pyright, and pytest.",
       "source": "./",
       "strict": false,
       "skills": ["./python-dev"]
     },
     {
+      "name": "python-project-scaffold",
+      "description": "Scaffold a new Python project with production-ready tooling and structure.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./python-project-scaffold"]
+    },
+    {
       "name": "systematic-debugging",
-      "description": "Language-agnostic four-phase debugging methodology with root cause analysis. No fixes without root cause first.",
+      "description": "Four-phase debugging method that finds the root cause before any fix.",
       "source": "./",
       "strict": false,
       "skills": ["./systematic-debugging"]
     },
     {
       "name": "task-handover",
-      "description": "Create a structured handover document so the next agent or engineer can resume work with zero prior context.",
+      "description": "Write a HANDOVER.md so the next agent or engineer can resume with no prior context.",
       "source": "./",
       "strict": false,
       "skills": ["./task-handover"]
     },
     {
+      "name": "task-scope-and-spec",
+      "description": "Scope a loose engineering task into a tight, testable spec list.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./task-scope-and-spec"]
+    },
+    {
       "name": "write-tests",
-      "description": "Write focused pytest tests covering critical paths, edge cases, and error handling.",
+      "description": "Write focused pytest tests for critical paths, edge cases, and error handling.",
       "source": "./",
       "strict": false,
       "skills": ["./write-tests"]

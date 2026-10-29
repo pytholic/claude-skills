@@ -11,7 +11,7 @@ What people ask for and what they actually want are different things. They ask f
 
 The cheapest moment to find this gap is before any plan, spec, or code exists. Once you've started building, switching costs are real, and the user will rationalize the wrong thing into a "good enough" thing. The misfit gets locked in.
 
-This skill closes the gap before it costs anything. The downstream skills assume you already know roughly what you want: `superpowers:brainstorming` explores the design space, `superpowers:writing-plans` writes the plan down, `goal-workflow` turns it into verified implementation. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
+This skill closes the gap before it costs anything. The downstream skills assume you already know roughly what you want: `task-scope-and-spec` pins down the requirements, `planning-and-task-decomposition` orders them, and `goal-workflow` or `guided-implementation` builds them. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
 
 ## When to Use
 

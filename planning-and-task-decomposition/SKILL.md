@@ -161,12 +161,8 @@ spec input. This replaces ad hoc self-checking: requirement coverage comes back 
 you can skim. No separate self-review step is needed.
 
 Quality review is a deliberate second step, not automatic. Once `goal-workflow` reports
-the acceptance criteria satisfied, trigger `python-code-review` (personal rules: SOLID,
-DRY/YAGNI/KISS, type hints, style, test quality) as the default daily-driver pass. Only
-reach for `code-review`'s specialized agents for aspects `python-code-review` doesn't
-cover (comment accuracy, silent-failure hunting, type-invariant design, or a
-code-simplifier polish pass) — running both skills' general review at once is
-redundant.
+the acceptance criteria satisfied, run `python-code-review` (correctness, security,
+simplicity, and my conventions, with a verdict) once.
 
 ### Fresh session
 If work will continue in a new session, produce a handover first (the session-handover
@@ -183,8 +179,8 @@ plans and handovers survive context boundaries.
 - No speculative scope: if the spec doesn't require it, it isn't in the plan.
 - No restating the user's background or narrating the workflow steps.
 - No architecture essay — decisions get 1–2 lines of rationale, not sections.
-- No skipping `goal-workflow` for agent-driven implementation, and no re-running
-  `python-code-review`/`code-review` redundantly once one has already covered an aspect.
+- No skipping `goal-workflow` for agent-driven implementation, and no second review pass
+  once `python-code-review` has run.
 
 ## Clarifying questions
 

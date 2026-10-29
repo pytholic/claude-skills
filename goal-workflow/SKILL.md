@@ -1,6 +1,6 @@
 ---
 name: goal-workflow
-description: Implement a spec fully, check each requirement off against the implementation, and produce a report. Use whenever the user runs /goal-workflow, mentions "implement spec", "verify against spec", or wants to go from requirements to verified implementation in one shot. Even if the request seems simple, invoke this skill — it handles both small and large specs.
+description: Implements a spec fully, checks each requirement off against the implementation, and ends with a requirement-by-requirement report. Use when the user runs /goal-workflow, asks to "implement the spec" or "verify against the spec", or wants to go from a requirement list to a verified implementation in one pass.
 ---
 
 You are running the goal-workflow skill. Your job: implement a spec fully, check each requirement off, report results.

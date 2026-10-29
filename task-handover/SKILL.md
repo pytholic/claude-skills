@@ -1,6 +1,6 @@
 ---
 name: task-handover
-description: Create a structured handover document so the next agent or engineer can resume work with zero prior context. Use this skill when a session is getting too long, the context window is under pressure, the user asks to "wrap up", "hand off", "create a summary for the next agent", or says "let's continue in a new chat". Also trigger proactively when a multi-subtask session has been running for a long time and meaningful progress has been made. Produces a single HANDOVER.md file — not a chat summary — that survives session boundaries and enables true cold-start resumption.
+description: Writes a single uncommitted .claude/HANDOVER.md so the next agent or engineer can resume with no prior context. Use when the user asks to "wrap up", "hand off", "create a summary for the next agent", or "continue in a new chat", or when a long multi-subtask session with real progress is close to its context limit. Unlike HAC files, the handover is not committed to the repo.
 ---
 
 # Task Handover
@@ -11,7 +11,7 @@ Methodology for creating a self-contained handover document that lets the next a
 
 ## Core Principle
 
-**THE HANDOVER DOCUMENT MUST PASS THE COLD-START TEST.**
+**The handover must pass the cold-start test.**
 
 Before finalising, ask: *Could a completely fresh agent, with only this document and access to the codebase, pick up exactly where we left off and make the right next move?*
 
@@ -30,9 +30,9 @@ When in doubt, write the full document — it costs minutes now and saves the ne
 
 ---
 
-## Phase 1: Verify State (Do Not Skip)
+## Phase 1: Verify State
 
-**Do not write the handover from conversational memory.** Agent memory degrades and drifts over long sessions — treat it as unreliable. You must verify the actual state of the codebase from the terminal before writing a single word.
+**Do not write the handover from conversational memory.** Memory of a long session drifts. Check the actual state of the codebase from the terminal before writing.
 
 ```bash
 # 1. What files are actually changed right now?
@@ -103,32 +103,3 @@ After writing the file, respond to the user with three things:
 > what you are going to do first, and wait for my confirmation before proceeding.
 > ```
 
----
-
-## Process Violations — Red Flags
-
-Stop and correct if you catch yourself doing any of the following:
-
-- Writing the handover from memory without first running `git status` or checking file contents
-- Leaving `<!-- ... -->` comments in the final generated Markdown file
-- Describing the next task vaguely ("continue implementing X") instead of specifically ("implement `refresh_token()` in `services/auth.py` at line 134, following the pattern of `create_token()` above it")
-- Omitting failed approaches because "they didn't work so they don't matter" — they matter most
-- Creating a new `HANDOVER-<topic>.md` instead of overwriting the single `.claude/HANDOVER.md`
-- Skipping Phase 1 verification and writing from conversational memory
-
----
-
-## Pre-Completion Checklist
-
-- [ ] `git status` and `git diff --stat` run — handover reflects actual file state, not memory
-- [ ] Test/lint state captured and recorded
-- [ ] All template sections filled (or explicitly marked N/A)
-- [ ] Every completed item references specific files or artefacts
-- [ ] Every decision includes the *why* and rejected alternatives
-- [ ] Dead ends documented with failure reasoning
-- [ ] Next immediate task is specific enough to act on without clarification
-- [ ] Open questions listed and flagged for human decision
-- [ ] No HTML comments in the output file
-- [ ] Written to `.claude/HANDOVER.md` (single file, overwritten)
-- [ ] Cold-start verification passed
-- [ ] Copy-pasteable resume prompt provided to user

@@ -1,6 +1,6 @@
 ---
 name: python-code-review
-description: Reviews Python code changes for quality, correctness, and adherence to project conventions before commits or PRs. Checks for SOLID violations, DRY/YAGNI issues, missing tests, type safety, security concerns, and style compliance. Invoke this skill any time the user asks for a review — including brief or casual phrasing like "quick review", "check this over", or "does this look OK" — rather than reviewing inline directly; the forked subagent context is worth paying for even on "quick" asks, since a casual tone doesn't mean lower stakes. Also invoke it as a step within a larger multi-part request (e.g. implement-then-test-then-review workflows), even without an explicit /python-code-review call. Python-specific — covers ruff, pyright, pytest, and modern Python 3.13+ idioms by default (falls back to the project's pyproject.toml `requires-python` floor if it pins something lower). For deep silent-failure hunting or type-invariant design, use code-review's targeted agents instead.
+description: Reviews Python changes for correctness, security, simplicity, and my coding conventions, and gives a verdict. Use when the user asks for a review of a diff, branch, PR, or files, including quick or casual asks ("quick review", "check this over", "does this look OK"), or as the review step of an implement-test-review request. Targets Python 3.13+ unless the project's pyproject.toml pins a lower requires-python.
 context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
@@ -8,110 +8,75 @@ allowed-tools: Read, Grep, Glob, Bash
 
 # Python Code Review
 
-Thorough code review of recent Python changes. Focuses on what matters: correctness, design, and maintainability.
+Review recent Python changes against the way I write code: get the job done, use modern best practices, keep it simple. Correctness comes first, then simplicity, then conventions.
 
-## Step 1: Gather Context
+## Step 1: Gather context
 
-1. Run `git diff` to see unstaged changes (or `git diff --cached` for staged, or `git diff main...HEAD` for full branch diff)
-2. Read the project's `CLAUDE.md` and `pyproject.toml` for conventions (ruff rules, pyright config, test config, and the `requires-python` version floor)
-3. Read each changed file in full to understand surrounding context
-4. Run the tooling on the changed files and capture the real output — don't eyeball what a tool can decide:
-   - `ruff check <changed files>` and `ruff format --check <changed files>` for lint and formatting
-   - `pyright <changed files>` (or the project's configured type checker) for type errors
-   Fold the concrete findings into the report. If a tool isn't installed or configured, note that and fall back to manual inspection.
+1. Find the change: `git diff` (unstaged), `git diff --cached` (staged), or `git diff <base>...HEAD` for a branch. If the user named files or a PR, review those instead.
+2. Read the project's `CLAUDE.md` and `pyproject.toml`: ruff and pyright config, test config, and the `requires-python` floor.
+3. Read each changed file in full, plus the callers of any changed public interface.
+4. Run the tools on the changed files and use their real output:
+   - `ruff check <files>` and `ruff format --check <files>`
+   - `pyright <files>`, or the project's configured type checker. Ignore stub warnings for external dependencies.
+   - The tests that cover the change, when they run quickly.
 
-## Step 2: Review (in priority order)
+   If a tool isn't installed or configured, say so and inspect manually.
 
-### 2a. Correctness
+## Step 2: Review, in priority order
+
+### Correctness
 
 - Logic errors, off-by-one, wrong comparisons, missing return paths
-- Race conditions, resource leaks, unhandled exceptions at boundaries
-- Null/None handling — does the code handle missing data at system boundaries?
-- API contract violations — does the public interface match its protocol/ABC?
+- `if`/`elif`/`match` fall-through branches that are correct only by accident
+- Errors at boundaries: unhandled exceptions, swallowed exceptions (`except Exception: pass`, bare `except:`, errors reduced to a log line), resources not closed on the error path
+- `None` and missing data where data enters the system
+- A public interface that doesn't match its Protocol/ABC or its callers
+- Async: unawaited coroutines, blocking calls inside the event loop, state shared across tasks
+- Mutable default arguments and mutable class attributes shared across instances
 
-### 2b. Security (OWASP-aware)
+### Security
 
-- Injection risks (SQL, command, template)
+- Injection (SQL, shell, template)
 - Secrets or credentials in code or config
-- Input validation at system boundaries (user input, external APIs)
-- Overly permissive access or missing auth checks
+- Missing validation of user input or external API responses
+- Overly broad access or missing auth checks
 
-### 2c. Design Principles
+### Simplicity
 
-**SOLID:**
-- **S** — Does each class/module have one reason to change?
-- **O** — Can behavior be extended without modifying existing code?
-- **L** — Do subtypes honor the contracts of their base types?
-- **I** — Are interfaces focused, or do they force unused dependencies?
-- **D** — Do high-level modules depend on abstractions, not concretions?
+Judge every added abstraction, parameter, and config option against the minimality ladder in `~/.claude/CLAUDE.md` §2. If it isn't in your context, read `~/.claude/skills/shared/minimality-ladder.md`. Name the rung that should have caught it. The rung name is the finding, and it keeps review and implementation speaking one language. Never flag the never-traded-away items as over-engineering.
 
-**DRY** — Flag duplicated logic (3+ occurrences). Do NOT flag intentional similarity in tests.
+Also flag:
+- Code more complex than it needs to be: redundant branches, needless intermediate variables, reimplemented stdlib, deep nesting. Give the simpler form in one line.
+- A design pattern with no concrete problem it solves.
+- Inheritance where composition works, unless the change deliberately extends a protocol or entity hierarchy.
+- Logic duplicated at 3+ sites. Don't flag intentional similarity in tests.
 
-**YAGNI / minimality** — Judge every added abstraction against the minimality ladder below and name the rung that should have caught it. Naming the rung is the finding — it makes the fix obvious and keeps review and implementation speaking one language. Also flag unused parameters and configurability nobody asked for. Never flag the never-traded-away items as over-engineering.
+### Modern Python
 
-<!-- BEGIN shared: minimality-ladder -->
-Before writing code, stop at the first rung that holds:
+- Type hints on public interfaces, in 3.13+ syntax (`str | None`, `list[int]`) or the project's `requires-python` floor
+- Context managers for anything with a lifecycle; generators for large data
+- Protocols over ABCs when no shared implementation is needed
+- A function that does more than one thing. Past about 30 lines, decomposition is usually due; report it as a suggestion, not a defect.
+- Application code logs through the project logger or `rich.console`. `print()` is fine in scripts, smoke tests, and examples.
 
-1. Does this need to exist? → no: don't build it
-2. Already in this codebase? → reuse, don't rewrite
-3. Stdlib does it? → use it
-4. Native platform feature? → use it
-5. Installed dependency? → use it
-6. One line? → one line
-7. Only then: the minimum that works
+### My conventions
 
-Walk the ladder *after* understanding the problem, not instead of it — read the code the
-change touches and trace the real flow before picking a rung. Lazy about the solution,
-never about reading.
+Check the changed code against the Coding Conventions section of `~/.claude/CLAUDE.md`: object-creation prefixes, file roles and names, helper order, docstring and comment rules, and test naming. If that section isn't in your context, read it.
 
-**Never traded away, at any rung:** trust-boundary validation, data-loss handling,
-security, accessibility. Code ends up small because it's necessary, not golfed.
-<!-- END shared: minimality-ladder -->
+### Tests
 
-**KISS** — Flag unnecessary complexity. If 50 lines can replace 200, say so.
+- New or changed behavior has tests. Doc-only changes don't need them unless fixtures or examples change.
+- The tests would fail without the change, and they cover the happy path, edge cases (empty, `None`, zero, negative, single item), and error paths.
+- `pytest.param(..., id=...)` for parametrize, never bare tuples. AAA structure. `mocker` from pytest-mock, mocks only at boundaries.
+- Shared setup lives in `conftest.py` fixtures and is never imported. Private-method tests are named `test__<name>`.
 
-### 2d. Python Quality
+### Comments and docstrings (changed lines only)
 
-- Type hints on all public interfaces (Python 3.13+ syntax by default: `str | None`, not
-  `Optional[str]` — unless `pyproject.toml`'s `requires-python` pins an older floor, in
-  which case follow that floor instead)
-- Functions under 30 lines; if longer, suggest decomposition
-- Composition over inheritance
-- Context managers for resources, generators for memory efficiency
-- No `print()` statements (use logging)
-- Google-style docstrings on public APIs
-- Protocol pattern over ABCs where appropriate
-
-### 2e. Style & Linting
-
-- Report the real `ruff` and `pyright` findings from Step 1 — don't re-derive lint, formatting, or type errors by eye.
-- Beyond the tools: naming consistency with the surrounding codebase, and any dead code the linter isn't configured to catch.
-
-### 2f. Test Quality
-
-- New behavior has corresponding tests
-- Tests follow Red-Green-TDD: does the test actually fail without the implementation?
-- AAA pattern (Arrange-Act-Assert)
-- Uses `pytest.param()` with `id` for parametrized tests (never bare tuples)
-- Tests cover: happy path, edge cases, error paths
-- No testing of framework behavior or trivial getters
-- Mocks only at boundaries; prefer dependency injection
-
-### 2g. Comments & Docstrings (changed lines only)
-
-- Flag comments in the diff that are stale (describe code that has since changed), redundant (restate what the code obviously does), or misleading.
-- Where a comment is worth keeping but verbose or awkward, suggest a tighter, natural, plain-language rewrite.
-- Check docstrings on added/changed modules, classes, and functions: they should state purpose (plus args/returns where non-obvious) in plain language. Simplify overcomplicated, padded, or lengthy docstrings to a concise Google-style form — a one-line summary is enough when the signature is self-explanatory.
-- Don't request new comments or docstrings on code that already reads clearly.
-
-### 2h. Simplification (brief)
-
-- Spot changed code that's more complex than it needs to be: redundant branches, needless intermediate variables, reimplemented stdlib, over-nesting.
-- Offer the simpler form in one line. Keep it light — the one or two highest-value simplifications, not a full rewrite.
+- Google-style docstrings on public APIs that state purpose only. One line when the signature is self-explanatory. Class docstrings go on the class, not `__init__`.
+- Flag comments and docstrings that are stale, redundant, or misleading, or that explain rationale, cross-reference other functions or pipeline stages, or name concrete classes in a module docstring. Suggest the shorter version.
+- Don't ask for comments on code that already reads clearly.
 
 ## Step 3: Report
-
-Output a structured review using this format:
 
 ```
 ## Review Summary
@@ -120,32 +85,21 @@ Output a structured review using this format:
 **Verdict**: APPROVE | REQUEST_CHANGES | COMMENT
 
 ## Critical (must fix)
-- [file:line] Issue description → Suggested fix
+- [file:line] Issue → Suggested fix
 
 ## Warnings (should fix)
-- [file:line] Issue description → Suggested fix
+- [file:line] Issue → Suggested fix
 
 ## Suggestions (consider)
-- [file:line] Improvement idea
+- [file:line] Improvement
 
 ## What's Good
-- Brief note on well-done aspects (keep to 1-3 points)
+- 1–3 short points
 ```
 
 ## Rules
 
-- Apply every rule below to **each** changed file, not a representative sample.
-- Review ONLY changed code. Do not critique pre-existing code unless the change makes it worse.
-- Report anything that could cause incorrect behavior, a test failure, a security issue, or a
-  misleading result. Omit only pure style and naming nits that ruff already catches or that are
-  preference-level. Sort what remains into the Critical / Warnings / Suggestions tiers — the
-  tiers do the filtering, not you.
-- Be specific: reference exact file and line, show the problematic code, show the fix.
-- Do not nitpick formatting that ruff would auto-fix.
-- Do not suggest adding comments/docstrings to code you didn't write.
-- If no issues found, say so. Don't invent problems.
-- This skill owns general quality, comment clarity, light simplification, and test
-  coverage. For deep silent-failure hunting or type-invariant design, use `code-review`'s
-  targeted agents (silent-failure-hunter / type-design-analyzer) instead of duplicating
-  that depth here.
-- For the checklist, see [checklist.md](checklist.md).
+- Review every changed file, and only the changed code. Mention pre-existing issues only when the change makes them worse.
+- Report everything that could cause incorrect behavior, a test failure, a security issue, or a misleading result, and let the tiers do the filtering. Leave out formatting that ruff fixes and pure preference.
+- Be specific: exact file and line, the problematic code, and the fix.
+- If nothing is wrong, say so.

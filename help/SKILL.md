@@ -36,23 +36,11 @@ Present this guide to the user exactly as formatted below.
 | Find where something lives in the codebase | `"where is X?"` / `"find all uses of Y"` / `"how is this structured?"` |
 | Understand how code works with a walkthrough | `"explain this code"` / `"how does X work?"` / `"walk me through Y"` |
 
-## LLM / AI
-
-| What you want | What to say |
-|---|---|
-| Build RAG, agents, evals, fine-tuning pipelines | `"help me build a RAG system"` / `"design an eval pipeline"` / `"fine-tune this model"` |
-
 ## Browser & UI
 
 | What you want | What to say |
 |---|---|
 | Automate browser interactions or test a UI | `"automate this page"` / `"test this UI"` / `"click X on the page"` |
-
-## Diagrams
-
-| What you want | What to say |
-|---|---|
-| Draw an Excalidraw diagram of anything | `"draw a diagram of X"` / `"visualize this"` / `"sketch the architecture"` |
 
 ## Session Management
 

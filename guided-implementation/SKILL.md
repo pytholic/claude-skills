@@ -87,29 +87,10 @@ Every guidance turn has exactly these four parts, in order:
 
 Then stop. Do not continue past `Your move:` under any circumstance.
 
-Walk the minimality ladder before framing **The decision**. If the piece stops at rungs
-1–6, that *is* the turn: say which rung, and drop the piece from the list. "You don't
-need this" is a valid and valuable turn. Only pieces that reach rung 7 get a design
-choice.
-
-<!-- BEGIN shared: minimality-ladder -->
-Before writing code, stop at the first rung that holds:
-
-1. Does this need to exist? → no: don't build it
-2. Already in this codebase? → reuse, don't rewrite
-3. Stdlib does it? → use it
-4. Native platform feature? → use it
-5. Installed dependency? → use it
-6. One line? → one line
-7. Only then: the minimum that works
-
-Walk the ladder *after* understanding the problem, not instead of it — read the code the
-change touches and trace the real flow before picking a rung. Lazy about the solution,
-never about reading.
-
-**Never traded away, at any rung:** trust-boundary validation, data-loss handling,
-security, accessibility. Code ends up small because it's necessary, not golfed.
-<!-- END shared: minimality-ladder -->
+Walk the minimality ladder (`~/.claude/CLAUDE.md` §2) before framing **The decision**.
+If the piece stops at rungs 1–6, that *is* the turn: say which rung, and drop the piece
+from the list. "You don't need this" is a valid and valuable turn. Only pieces that reach
+rung 7 get a design choice.
 
 Where a piece forces no real design choice, drop **The decision** rather than
 manufacturing one. Two options that differ only cosmetically are worse than none.
@@ -168,7 +149,7 @@ alongside the plan it implements. This survives compaction; conversation context
 
 Standing references — cite these, don't restate their content:
 
-- **Minimality ladder** — inlined above; canonical copy in `skills/README.md`.
+- **Minimality ladder** — `~/.claude/CLAUDE.md` §2; canonical file `shared/minimality-ladder.md`.
 - **Standards and design vocabulary** — `python-dev`. Pull the pattern-selection table
   and implementation standards from there when framing **The decision**. Do not
   re-derive them here.

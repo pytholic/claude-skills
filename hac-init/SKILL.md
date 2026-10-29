@@ -11,7 +11,7 @@ Bootstrap the `.hac/` (Human-Agent Context) directory for any project.
 
 ## Core Principle
 
-**HAC IS A SHARED CONTEXT LAYER, NOT A PROJECT MANAGEMENT TOOL.**
+**HAC is a shared context layer, not a project management tool.**
 
 It exists so that any human or agent can understand the project's current state in under 30 seconds — without reading code, scrolling through chat history, or asking "where were we?" Keep it minimal. Four files, four concepts. Nothing more.
 
@@ -263,15 +263,13 @@ After generating files:
 
 ---
 
-## Process Violations — Red Flags
+## Rules
 
-Stop and correct if you catch yourself doing any of the following:
-
-- Creating `.hac/` for a trivial one-off task
-- Pre-creating task files at scaffold time (they are on-demand only)
-- Creating a task file retroactively for work that is already complete — task files are forward-looking working memory; a done task with no file needs no file, and a wrap-up request is never a reason to create one
-- Putting `.hac/` in `.gitignore`
-- Duplicating the full task list in both `README.md` and `status.md` (README = master index of all tasks including done; status.md = dashboard of active/blocked/parked only)
-- Editing or removing past entries in `decisions.md` (it is append-only)
-- Mirroring PR/review state in `.hac/` or reintroducing a review status — Done is a local judgment; use 🔴 Blocked for "awaiting review"
-- Adding files beyond the four-item structure without explicit user request
+- Don't create `.hac/` for a trivial one-off task.
+- Create task files on demand, never at scaffold time.
+- Never create a task file retroactively for completed work. Task files are forward-looking working memory; a done task with no file needs no file, and a wrap-up request is never a reason to create one.
+- Keep `.hac/` tracked in git, never in `.gitignore`.
+- Don't duplicate the full task list: `README.md` is the master index of all tasks including done; `status.md` is the dashboard of active, blocked, and parked work only.
+- `decisions.md` is append-only. Never edit or remove past entries.
+- Don't mirror PR or review state, and don't add a review status. Done is a local judgment; use 🔴 Blocked for "awaiting review".
+- Keep to the four-item structure unless the user explicitly asks for more.

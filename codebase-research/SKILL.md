@@ -1,6 +1,6 @@
 ---
 name: codebase-research
-description: Navigate, search, and map codebases efficiently to answer structural and locational questions. Use this skill whenever the user asks where something is in a codebase, how the code is organized, where a pattern or symbol is used or defined, what depends on a module, or whether something is still in use. Trigger for any of these signals: "where is this logic?", "find all usages of X", "where is Y defined?", "how is the codebase structured?", "what imports Z?", "is this used anywhere?", "which files handle X?", "give me an overview of the codebase", or any architectural question about an existing project. Always prefer this skill over ad-hoc file reading — it produces ranked, synthesized answers rather than raw tool output.
+description: Navigates and maps a codebase to answer where-and-how-organized questions, with ranked, annotated answers instead of raw search output. Use when the user asks where logic lives, where a symbol is defined or used, what imports or depends on a module, whether something is still used, which files handle X, or how the codebase is structured — for example "where is Y defined?", "find all usages of X", "is this used anywhere?", or "give me an overview of the codebase".
 ---
 
 # Codebase Research
@@ -11,7 +11,7 @@ Structured methodology for navigating and understanding codebases of any languag
 
 ## Core Principle
 
-**SEARCH BEFORE READING. NEVER OPEN FILES WITHOUT KNOWING THEY MATTER.**
+**Search before reading. Open a file only once a search shows it matters.**
 
 Opening files speculatively wastes context and produces noisy answers. Always locate candidates first with search tools, then read only the files confirmed to be relevant.
 
@@ -247,29 +247,4 @@ Return a clear verdict: **Used** / **Unused** / **Uncertain** — with explicit 
 - If more than ~8 results, group them: "5 usages in `api/routes/`, 2 in `services/`, 1 in tests"
 - If nothing found, say so immediately and suggest likely alternatives (typo? aliased import? different module?)
 
----
-
-## Process Violations — Red Flags
-
-Stop and correct if you catch yourself doing any of the following:
-
-- Opening files speculatively to search their contents instead of using `grep`/`rg` first
-- Writing long `--exclude-dir` lists when `rg` or `git grep` would handle it automatically
-- Pasting raw search output without annotation
-- Reading every file in a directory instead of checking the public API entry first
-- Running the same search twice with slightly different wording instead of narrowing with better flags
-- Reporting 20+ locations without grouping or prioritizing
-- Tracing a dependency without checking for aliased imports
-
----
-
-## Pre-Answer Checklist
-
-Before presenting findings, verify:
-
-- [ ] Oriented first — directory structure mapped before any search
-- [ ] Searched before reading — no files opened speculatively
-- [ ] Best tool used — `rg` or `git grep` preferred over bare `grep`
-- [ ] Aliases checked — import renaming scanned during any dependency trace
-- [ ] All locations annotated — no raw search output presented
-- [ ] Answer leads with the finding — search mechanics not narrated to the user
+- If a search misses, narrow it with better flags or a different pattern rather than rerunning near-identical wording.

@@ -1,6 +1,6 @@
 ---
 name: python-project-scaffold
-description: Scaffold a new Python project with production-ready tooling and structure. Use when the user says "new project", "set up a project", "initialize a Python project", "create a repo", "project template", or asks for boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, HAC (.hac/), and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
+description: Scaffolds a new Python project with production-ready tooling and structure. Use when the user asks for a new project, to set up or initialize a Python project, to create a repo, a project template, or boilerplate setup. Generates pyproject.toml, Makefile, pre-commit config, ruff/pyright config, test structure, HAC (.hac/), and directory layout following modern Python conventions with uv, ruff, pyright, and pytest.
 ---
 
 # Python Project Scaffold
@@ -11,7 +11,7 @@ Generate a complete, production-ready Python project structure in one pass.
 
 ## Core Principle
 
-**EVERY NEW PROJECT STARTS WITH THE SAME SOLID FOUNDATION.**
+**Every new project starts from the same foundation.**
 
 Do not improvise project setup. Follow this skill to produce a consistent, opinionated scaffold that matches the team's established conventions.
 
@@ -584,19 +584,14 @@ Report any failures and fix before declaring scaffold complete.
 
 ---
 
-## Process Violations — Red Flags
+## Conventions
 
-Stop and correct if you catch yourself doing any of the following:
-
-- Generating files without confirming project name and type
-- Skipping pyright or ruff config in `pyproject.toml`
-- Using `requirements.txt` instead of `pyproject.toml` with dependency groups
-- Creating a `setup.py` or `setup.cfg` instead of `pyproject.toml`
-- Putting the package directly at the root instead of under `src/`
-- Pre-creating `core/`, `services/`, or `infrastructure/` directories before they're needed
-- Using static `version = "0.1.0"` instead of `dynamic = ["version"]` with `hatch-vcs`
-- Omitting `.pre-commit-config.yaml`
-- Using `pip` or `poetry` instead of `uv`
-- Putting test configuration in a separate `pytest.ini` instead of `pyproject.toml`
-- Generating a flat `tests/` directory without `unit/` and `integration/` separation
-- Skipping the `.hac/` directory or duplicating its templates instead of using `hac-init`
+- Confirm the project name and type before generating files.
+- All config lives in `pyproject.toml`: dependency groups (no `requirements.txt`, `setup.py`, or `setup.cfg`), ruff and pyright config, and pytest config (no separate `pytest.ini`).
+- Use `dynamic = ["version"]` with `hatch-vcs`, not a static version.
+- Put the package under `src/`, not at the root.
+- Don't pre-create `core/`, `services/`, or `infrastructure/` directories.
+- Always include `.pre-commit-config.yaml`.
+- Use `uv`, not `pip` or `poetry`.
+- Split tests into `tests/unit/` and `tests/integration/`.
+- Create `.hac/` through the `hac-init` skill; don't duplicate its templates.

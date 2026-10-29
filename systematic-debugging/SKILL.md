@@ -1,13 +1,13 @@
 ---
 name: systematic-debugging
-description: Language-agnostic, four-phase debugging methodology with root cause analysis. Use when investigating bugs, fixing test failures, diagnosing unexpected behavior, or troubleshooting any runtime/logic error. Trigger this skill whenever the user says "debug", "fix this bug", "why is this failing", "unexpected behavior", "broken", "not working", or presents a stack trace / error log. Emphasizes NO FIXES WITHOUT ROOT CAUSE FIRST.
+description: Language-agnostic, four-phase debugging method that finds the root cause before any fix. Use when investigating a bug, a failing test, unexpected behavior, or a runtime or logic error — for example when the user says "debug", "fix this bug", "why is this failing", "not working", or shares a stack trace or error log.
 ---
 
 # Systematic Debugging
 
 ## Core Principle
 
-**NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST.**
+**No fixes without root-cause investigation first.**
 
 Never apply symptom-focused patches that mask underlying problems. For example, adding `if x is None: return` at the crash site instead of tracing where the missing data originated is a process violation.
 
@@ -18,7 +18,7 @@ Not every bug needs the full four-phase framework. Before entering the phases, p
 - **Trivial bug** (typo, wrong variable name, off-by-one that is immediately obvious from the error): Fix it directly, add a brief note explaining the cause, and move on. No hypothesis template needed.
 - **Non-trivial bug** (root cause is not immediately obvious, involves data flow across multiple functions/modules, or has failed one fix attempt already): Enter the full four-phase framework below.
 
-When in doubt, default to the full framework — it costs minutes but saves hours.
+When in doubt, use the full framework. It costs minutes and saves hours.
 
 ## Cross-Skill Integration
 
@@ -44,9 +44,9 @@ This is a methodology skill. The steps below involve writing tests and implement
    - Inspect input arguments and return values at each boundary until you find where valid data becomes invalid.
 4. **Collect evidence.** Record specific observations: exact variable values, log lines, timestamps, or conditions that trigger vs. don't trigger the bug. You will need these in Phase 2.
 
-### Phase 2: Hypothesis (MANDATORY — Do Not Skip)
+### Phase 2: Hypothesis (before any fix)
 
-Before writing ANY fix, pause and state your hypothesis explicitly.
+Before writing any fix, state your hypothesis explicitly. This is the step that keeps a fix aimed at the cause rather than the symptom.
 
 Read the [template.md](template.md) file in this directory and fill out every field. The template includes:
 
@@ -59,12 +59,12 @@ Read the [template.md](template.md) file in this directory and fill out every fi
 
 ### Phase 3: Implementation & Verification
 
-1. **Implement a single, targeted fix** that addresses the root cause from your hypothesis. Do not bundle unrelated refactors or "while I'm here" changes.
+1. **Implement a single, targeted fix** that addresses the root cause from your hypothesis: one logical change per attempt. Do not bundle unrelated refactors or "while I'm here" changes, and never catch broad exceptions to silence the error.
 2. **Follow project conventions.** Apply the relevant language/framework skill or fall back to the project's existing style.
 3. **Run the reproduction test.** It must now pass.
 4. **Run the full test suite.** Ensure zero regressions. If new tests fail, determine whether they are pre-existing flaky tests or genuine regressions from your change before proceeding.
 
-### Phase 4: Stop Rules (CRITICAL)
+### Phase 4: Stop Rules
 
 **Single failure**: If your fix doesn't resolve the reproduction test, return to Phase 2. Re-examine your evidence, invalidate the current hypothesis, and form a new one.
 
@@ -75,27 +75,4 @@ Read the [template.md](template.md) file in this directory and fill out every fi
 
 When you hit this threshold, do not attempt another patch. Instead, fill out the [escalation_template.md](escalation_template.md) and surface it to the user for discussion.
 
-## Process Violations — Red Flags
-
-Stop immediately if you catch yourself doing any of the following:
-
-- Skipping the hypothesis template ("I'll just try this real quick")
-- Catching broad exceptions to silence an error instead of fixing its source
-- Patching the crash site without knowing where the invalid data entered the flow
-- Saying "one more attempt" after multiple failures without revisiting your mental model
-- Bundling cosmetic or unrelated changes into a bug-fix commit
-
-## Pre-Completion Checklist
-
-The test run is the acceptance check — don't add a separate review pass on top of it. Before
-declaring a bug fixed, confirm process compliance and correctness:
-
-**Process compliance:**
-- [ ] Reproduction test was created before any fix was attempted
-- [ ] Hypothesis template was filled out with concrete evidence
-- [ ] No more than one logical change was made per fix attempt
-
-**Correctness:**
-- [ ] Root cause was fixed at its origin, not patched at the symptom
-- [ ] Reproduction test now passes
-- [ ] Full test suite passes with no new failures
+The bug is fixed when the reproduction test and the full suite pass. That test run is the acceptance check; don't add a separate review pass on top of it.
