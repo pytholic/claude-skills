@@ -68,32 +68,38 @@ proceed. This is not a plan document — do not save it unless asked.
 
 ## The turn contract
 
-Every guidance turn has exactly these four parts, in order:
+Every guidance turn has exactly these three parts, in order:
 
 ```
 **Piece N/M: <what you're building now>**
 
-**Why now:** <1 line — what it unblocks, or what it depends on that's already done>
+**Background and purpose:** <2–3 lines — what this piece is, why it exists, and what it unblocks or depends on that's already done>
 
-**The decision:** <the design choice this piece forces>
-- Option A — <trade-off in one line>
-- Option B — <trade-off in one line>
-<state a lean, and why, in one line>
-
-**Your move:** <what to write, described in behaviour and contract — not in code>
-- Signature or contract: <≤5-line snippet, if it genuinely clarifies>
+**How we do it:** <the approach and why, in 1–3 lines; name the one alternative you rejected only if the trade-off is real>
+- Contract: <what to write, described in behaviour and contract — not in code; a ≤5-line snippet only if it genuinely clarifies>
 - Look up: <specific stdlib/library/pattern name — never a link dump>
 ```
 
-Then stop. Do not continue past `Your move:` under any circumstance.
+Then stop. Do not continue past `How we do it:` under any circumstance.
 
-Walk the minimality ladder (`~/.claude/CLAUDE.md` §2) before framing **The decision**.
+Background comes first so the user knows why the piece exists before being told how to
+build it. Explain the concept or dependency behind the step (for example, why a library
+is needed at all), not only what to write. Keep it to a few lines; if it needs more, the
+piece is too large. Both parts stay short: the user still writes the code.
+
+Walk the minimality ladder (`~/.claude/CLAUDE.md` §2) before framing **How we do it**.
 If the piece stops at rungs 1–6, that *is* the turn: say which rung, and drop the piece
 from the list. "You don't need this" is a valid and valuable turn. Only pieces that reach
 rung 7 get a design choice.
 
-Where a piece forces no real design choice, drop **The decision** rather than
-manufacturing one. Two options that differ only cosmetically are worse than none.
+Default to a recommendation, not a menu. Where a piece forces no real design choice,
+skip the alternative and go straight to the contract. Two options that differ only
+cosmetically are worse than none.
+
+Offer a true Option A / Option B only when the choice depends on something the user must
+decide (a preference, or a constraint the agent can't see). Replace the approach line with
+one line per option, state a lean, and end the turn on the question. Give the contract on
+the next turn, once they answer.
 
 ## The review turn
 
@@ -151,7 +157,7 @@ Standing references — cite these, don't restate their content:
 
 - **Minimality ladder** — `~/.claude/CLAUDE.md` §2; canonical file `shared/minimality-ladder.md`.
 - **Standards and design vocabulary** — `python-dev`. Pull the pattern-selection table
-  and implementation standards from there when framing **The decision**. Do not
+  and implementation standards from there when framing **How we do it**. Do not
   re-derive them here.
 - **Explaining unfamiliar existing code** hit during the work — `explain-code`.
 - **Locating code** in the surrounding codebase — `codebase-research`.
@@ -171,7 +177,7 @@ Upstream: `interview-me` → `task-scope-and-spec` → `planning-and-task-decomp
 - Emitting a full function or class under any framing, including "for reference",
   "roughly", or "something like".
 - Batching pieces to save turns.
-- Answering the design question in the same breath as posing it.
+- Posing a true Option A / Option B and answering it in the same turn.
 - Manufacturing a decision where only one reasonable option exists.
 - Praising code that doesn't work, or hedging a real defect into a "consideration".
 - Restating the whole piece list every turn.
@@ -186,5 +192,7 @@ Upstream: `interview-me` → `task-scope-and-spec` → `planning-and-task-decomp
   or the user is stuck and hasn't said so. Ask.
 - The user pastes back code that is recognisably the snippet from the last turn → the
   snippet was too complete.
-- `Your move:` is missing, vague, or expands to more than one unit of behaviour.
+- **Background and purpose** only restates what to write, without saying why the piece exists.
+- The contract under **How we do it** is missing, vague, or expands to more than one unit
+  of behaviour.
 - A review turn ends without a clear next piece or a clear "same piece again".
